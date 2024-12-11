@@ -5,21 +5,26 @@ import { ResizablePanels } from '@/components/ResizablePanels';
 import { parseSQL } from '@/lib/sqlParser';
 
 const DEFAULT_SQL = `CREATE TABLE users (
-  id INTEGER PRIMARY KEY,
-  name TEXT NOT NULL,
-  email TEXT UNIQUE
+  id UUID PRIMARY KEY,
+  email TEXT NOT NULL
 );
 
-CREATE TABLE posts (
-  id INTEGER PRIMARY KEY,
-  title TEXT NOT NULL,
-  content TEXT,
-  user_id INTEGER REFERENCES users(id)
+CREATE TABLE rooms (
+  id BIGINT PRIMARY KEY,
+  topic TEXT,
+  user_id UUID REFERENCES users(id)
+);
+
+CREATE TABLE rooms_users (
+  user_id UUID REFERENCES users(id),
+  room_topic TEXT,
+  joined_at TIMESTAMP(3),
+  PRIMARY KEY (user_id, room_topic)
 );`;
 
 export default function Index() {
   const [sql, setSql] = useState(DEFAULT_SQL);
-  const tables = parseSQL(sql);
+  const { tables, isValid } = parseSQL(sql);
 
   return (
     <div className="h-screen">
@@ -31,7 +36,7 @@ export default function Index() {
         }
         right={
           <div className="h-full">
-            <SchemaGraph tables={tables} />
+            <SchemaGraph tables={tables} isValid={isValid} />
           </div>
         }
       />
