@@ -9,6 +9,7 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import { Table } from '@/lib/sqlParser';
 import { DatabaseSchemaNode } from './DatabaseSchemaNode';
+import { SchemaLegend } from './SchemaLegend';
 
 interface SchemaGraphProps {
   tables: Table[];
@@ -36,10 +37,10 @@ export function SchemaGraph({ tables, isValid }: SchemaGraphProps) {
       .filter(column => column.references)
       .map(column => ({
         id: `${table.name}-${column.name}-${column.references!.table}`,
-        source: table.name,
-        target: column.references!.table,
-        sourceHandle: column.name,
-        targetHandle: 'id',
+        source: column.references!.table,
+        target: table.name,
+        sourceHandle: `id-right`,
+        targetHandle: `${column.name}-left`,
         type: 'smoothstep',
         animated: true,
         markerEnd: {
@@ -60,6 +61,7 @@ export function SchemaGraph({ tables, isValid }: SchemaGraphProps) {
     >
       <Background />
       <Controls />
+      <SchemaLegend />
     </ReactFlow>
   );
 }

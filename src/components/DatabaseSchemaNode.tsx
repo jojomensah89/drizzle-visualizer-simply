@@ -1,5 +1,6 @@
 import { Handle, Position } from 'reactflow';
 import { cn } from '@/lib/utils';
+import { Key, Circle, Link } from 'lucide-react';
 
 interface SchemaField {
   name: string;
@@ -21,48 +22,64 @@ interface DatabaseSchemaNodeProps {
 export function DatabaseSchemaNode({ data, isValid = true }: DatabaseSchemaNodeProps) {
   return (
     <div className={cn(
-      "p-4 min-w-[200px] rounded-lg bg-card border-2",
+      "px-4 py-3 min-w-[200px] rounded-xl bg-card border-2",
       isValid ? "border-border" : "border-destructive"
     )}>
-      <div className="flex items-center gap-2 mb-2">
-        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M3 5a2 2 0 012-2h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5z" stroke="currentColor" strokeWidth="2"/>
-        </svg>
-        <h3 className="font-bold">{data.label}</h3>
+      <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
+        <div className="p-1.5 rounded-md bg-primary/10">
+          <Key className="w-4 h-4 text-primary" />
+        </div>
+        <h3 className="font-semibold text-sm">{data.label}</h3>
       </div>
-      <div className="space-y-1">
+      <div className="space-y-2">
         {data.columns.map((column) => (
-          <div key={column.name} className="flex items-center text-sm relative">
-            {column.references ? (
-              <svg className="w-3 h-3 mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M7 7h10v10H7V7z" stroke="currentColor" strokeWidth="2"/>
-              </svg>
-            ) : (
-              <svg className="w-3 h-3 mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="12" cy="12" r="5" stroke="currentColor" strokeWidth="2"/>
-              </svg>
-            )}
-            <span className="text-muted-foreground">{column.name}</span>
-            <span className="text-xs text-primary ml-2">{column.type}</span>
+          <div key={column.name} className="flex items-center text-sm relative group">
+            <div className="flex items-center gap-2 flex-1">
+              {column.name === 'id' ? (
+                <Key className="w-3.5 h-3.5 text-primary" />
+              ) : column.references ? (
+                <Link className="w-3.5 h-3.5 text-muted-foreground" />
+              ) : (
+                <Circle className="w-3.5 h-3.5 text-muted-foreground" />
+              )}
+              <span className="text-muted-foreground">{column.name}</span>
+              <span className="text-xs text-primary ml-auto">{column.type}</span>
+            </div>
             
-            {/* Add handle for primary key (id) columns */}
+            {/* Add handles for primary key (id) columns */}
             {column.name === 'id' && (
-              <Handle
-                type="target"
-                position={Position.Left}
-                id={column.name}
-                className="w-3 h-3 -left-1 bg-primary border-2 border-background"
-              />
+              <>
+                <Handle
+                  type="source"
+                  position={Position.Right}
+                  id={`${column.name}-right`}
+                  className="w-3 h-3 -right-1.5 bg-primary border-2 border-background"
+                />
+                <Handle
+                  type="source"
+                  position={Position.Left}
+                  id={`${column.name}-left`}
+                  className="w-3 h-3 -left-1.5 bg-primary border-2 border-background"
+                />
+              </>
             )}
             
-            {/* Add handle for foreign key columns */}
+            {/* Add handles for foreign key columns */}
             {column.references && (
-              <Handle
-                type="source"
-                position={Position.Right}
-                id={column.name}
-                className="w-3 h-3 -right-1 bg-primary border-2 border-background"
-              />
+              <>
+                <Handle
+                  type="target"
+                  position={Position.Right}
+                  id={`${column.name}-right`}
+                  className="w-3 h-3 -right-1.5 bg-primary border-2 border-background"
+                />
+                <Handle
+                  type="target"
+                  position={Position.Left}
+                  id={`${column.name}-left`}
+                  className="w-3 h-3 -left-1.5 bg-primary border-2 border-background"
+                />
+              </>
             )}
           </div>
         ))}
