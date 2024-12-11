@@ -1,14 +1,40 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from 'react';
+import { CodeEditor } from '@/components/CodeEditor';
+import { SchemaGraph } from '@/components/SchemaGraph';
+import { ResizablePanels } from '@/components/ResizablePanels';
+import { parseSQL } from '@/lib/sqlParser';
 
-const Index = () => {
+const DEFAULT_SQL = `CREATE TABLE users (
+  id INTEGER PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT UNIQUE
+);
+
+CREATE TABLE posts (
+  id INTEGER PRIMARY KEY,
+  title TEXT NOT NULL,
+  content TEXT,
+  user_id INTEGER REFERENCES users(id)
+);`;
+
+export default function Index() {
+  const [sql, setSql] = useState(DEFAULT_SQL);
+  const tables = parseSQL(sql);
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
-      </div>
+    <div className="h-screen">
+      <ResizablePanels
+        left={
+          <div className="h-full p-4">
+            <CodeEditor value={sql} onChange={(value) => setSql(value || '')} />
+          </div>
+        }
+        right={
+          <div className="h-full">
+            <SchemaGraph tables={tables} />
+          </div>
+        }
+      />
     </div>
   );
-};
-
-export default Index;
+}
